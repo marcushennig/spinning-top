@@ -40,4 +40,45 @@ Make sure the JOGL native libraries are available on your system when running th
 ## Further reading
 
 The PDF `A Symmetrical Spinning Top.pdf` in this repository contains a short derivation of the equations of motion and explains the numerical method in more detail.
+## Notes from "A Symmetrical Spinning Top"
+
+The accompanying PDF provides a short derivation of the equations of motion for a symmetric top. Starting from the kinetic energy
+$$
+T = \tfrac{1}{2}\,(I_1 \omega_1^2 + I_2 \omega_2^2 + I_3 \omega_3^2),
+$$
+applying a Legendre transform yields the Hamiltonian
+$$
+H = \frac{p_\theta^2}{2I_1} + \frac{p_\phi^2}{2I_1 \sin^2\theta} + \frac{p_\psi^2}{2I_3} - \frac{p_\phi p_\psi \cos\theta}{I_1 \sin^2\theta} + M g l \cos\theta.
+$$
+The resulting first order system requires the six initial conditions $(\theta,\phi,\psi,p_\theta,p_\phi,p_\psi)$.
+
+To integrate these equations the document proposes the classical fourth-order Runge--Kutta method,
+
+$$
+\begin{aligned}
+  k_1 &= h\,f(t_n, y_n),\\
+  k_2 &= h\,f\bigl(t_n + \tfrac{h}{2},\; y_n + \tfrac{k_1}{2}\bigr),\\
+  k_3 &= h\,f\bigl(t_n + \tfrac{h}{2},\; y_n + \tfrac{k_2}{2}\bigr),\\
+  k_4 &= h\,f(t_n + h,\; y_n + k_3),\\
+  y_{n+1} &= y_n + \tfrac{1}{6}(k_1 + 2k_2 + 2k_3 + k_4).
+\end{aligned}
+$$
+Adaptive step size control is recommended so that smaller steps are taken when the solution changes rapidly.
+
+Example parameter sets used in the PDF include
+
+```
+M = 1.05, g = 9.81, I1 = 0.15, I3 = 5.10,
+θ0 = 10°,  φ0 = 0°,  ψ0 = 0°,
+pθ0 = 0,   pφ0 = 5.30,  pψ0 = 4.80
+
+M = 1.15, g = 9.81, I1 = 0.23, I3 = 5.10,
+θ0 = 0.8°, φ0 = 24°, ψ0 = 30°,
+pθ0 = 0,   pφ0 = 0.0,  pψ0 = 13.3
+
+M = 1.65, g = 9.81, I1 = 0.75, I3 = 5.10,
+θ0 = 0.5°, φ0 = 0°,  ψ0 = 0°,
+pθ0 = 35,  pφ0 = 0.2,  pψ0 = 4.4
+```
+
 
