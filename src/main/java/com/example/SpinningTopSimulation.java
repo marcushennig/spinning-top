@@ -1,3 +1,6 @@
+package com.example;
+
+/** Numerical model for the spinning top dynamics. */
 public class SpinningTopSimulation {
     private Parameter c = new Parameter();
 
