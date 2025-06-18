@@ -2,7 +2,6 @@ package com.example;
 
 import org.lwjgl.*;
 import org.lwjgl.glfw.*;
-import org.lwjgl.opengl.*;
 import org.lwjgl.system.*;
 
 import java.nio.*;
@@ -11,7 +10,6 @@ import static org.lwjgl.glfw.Callbacks.*;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.system.MemoryStack.*;
-import static org.lwjgl.system.MemoryUtil.*;
 
 import org.lwjgl.opengl.GL;
 import java.util.logging.Logger;
@@ -129,7 +127,7 @@ public class SpinningTopViewer {
 
         // Set the clear color
 		glClearColor(1f, 1f, 1f, 1f);
-        //
+   
         glEnable(GL_DEPTH_TEST);     // Enables Z-buffering
         glEnable(GL_LIGHTING);       // Enables lighting
         glEnable(GL_LIGHT0);         // Enables a default light
@@ -257,13 +255,35 @@ public class SpinningTopViewer {
         glPopMatrix();
     }
 
-
+    /**
+     *  Sets up a perspective projection matrix.
+     *  This method calculates the field of view, aspect ratio, and near/far clipping planes,
+     *  and applies the perspective projection to the OpenGL context.
+     * @param fovy the field of view in the y direction, in degrees
+     * @param aspect the aspect ratio of the viewport (width / height)
+     * @param zNear the distance to the near clipping plane
+     * @param zFar the distance to the far clipping plane
+     */
     private void perspective(float fovy, float aspect, float zNear, float zFar) {
         float fH = (float) Math.tan(Math.toRadians(fovy / 2)) * zNear;
         float fW = fH * aspect;
         glFrustum(-fW, fW, -fH, fH, zNear, zFar);
     }
-
+    
+    /**
+     * Sets the camera to look at a specific point in 3D space.
+     * This method computes the forward, up, and side vectors based on the
+     * eye position, center position, and up vector, and applies the view
+     * @param eyeX   
+     * @param eyeY
+     * @param eyeZ
+     * @param centerX
+     * @param centerY
+     * @param centerZ
+     * @param upX
+     * @param upY
+     * @param upZ
+     */
     private void lookAt(
             double eyeX, double eyeY, double eyeZ,
             double centerX, double centerY, double centerZ,
