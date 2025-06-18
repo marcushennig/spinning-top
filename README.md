@@ -26,33 +26,22 @@ LWJGL bundles the required native libraries so no additional setup is needed whe
 
 ## Physics background
 
-For a symmetrical top the principal moments of inertia satisfy $I_1 = I_2 \neq I_3$. In a uniform gravitational field the Hamiltonian can be written as
-
-```
-H = p_theta^2/(2*I1) + p_phi^2/(2*I1*sin(theta)^2)
-    + p_psi^2/(2*I3) - p_phi*p_psi*cos(theta)/(I1*sin(theta)^2)
-    + M*g*l*cos(theta)
-```
-where $p_\theta$, $p_\phi$ and $p_\psi$ are the canonical momenta associated with the Euler angles. The simulation keeps track of these values and updates the orientation accordingly. Energy is conserved so monitoring it is a good way to check the integration accuracy.
-
-Default parameter values such as the mass `M`, distance to the centre of mass `l`, and inertias `J1` and `J3` can be found in `SpinningTopSimulation.resetInitialConditions()`.
-
-
-
-## Further reading
-
-Starting from the kinetic energy
+For a symmetrical top the principal moments of inertia satisfy $I_1 = I_2 \neq I_3$ the kinetic energy is
 $$
 T = \tfrac{1}{2}\,(I_1 \omega_1^2 + I_2 \omega_2^2 + I_3 \omega_3^2),
 $$
-applying a Legendre transform yields the Hamiltonian
+applying a Legendre transform yields the Hamiltonian,
 $$
-H = \frac{p_\theta^2}{2I_1} + \frac{p_\phi^2}{2I_1 \sin^2\theta} + \frac{p_\psi^2}{2I_3} - \frac{p_\phi p_\psi \cos\theta}{I_1 \sin^2\theta} + M g l \cos\theta.
+H = \frac{p_\theta^2}{2 I_1} + \frac{p_\phi^2}{2 I_1 \sin^2\theta}
++ \frac{p_\psi^2}{2 I_3} - \frac{p_\phi p_\psi \cos\theta}{I_1 \sin^2\theta}
++ M g l \cos\theta
 $$
+where $p_\theta$, $p_\phi$ and $p_\psi$ are the canonical momenta associated with the Euler angles. The simulation keeps track of these values and updates the orientation accordingly. Energy is conserved so monitoring it is a good way to check the integration accuracy.
+
+
 The resulting first order system requires the six initial conditions $(\theta,\phi,\psi,p_\theta,p_\phi,p_\psi)$.
 
 To integrate these equations the document proposes the classical fourth-order Runge--Kutta method,
-
 $$
 \begin{aligned}
   k_1 &= h\,f(t_n, y_n),\\
@@ -62,20 +51,22 @@ $$
   y_{n+1} &= y_n + \tfrac{1}{6}(k_1 + 2k_2 + 2k_3 + k_4).
 \end{aligned}
 $$
-Adaptive step size control is recommended so that smaller steps are taken when the solution changes rapidly.
+Adaptive step size control is recommended so that smaller steps are taken when the solution changes rapidly. 
 
-Example parameter sets used in the PDF include
+Note that default parameter values such as the mass `M`, distance to the centre of mass `l`, and inertias `J1` and `J3` can be found in `SpinningTopSimulation.resetInitialConditions()`.
+$$
+\begin{aligned}
+\text{Case 1:} \quad & M = 1.05, \quad g = 9.81, \quad I_1 = 0.15, \quad I_3 = 5.10, \\
+& \theta_0 = 10^\circ, \quad \phi_0 = 0^\circ, \quad \psi_0 = 0^\circ, \\
+& p_{\theta 0} = 0, \quad p_{\phi 0} = 5.30, \quad p_{\psi 0} = 4.80 \\
+\\
+\text{Case 2:} \quad & M = 1.15, \quad g = 9.81, \quad I_1 = 0.23, \quad I_3 = 5.10, \\
+& \theta_0 = 0.8^\circ, \quad \phi_0 = 24^\circ, \quad \psi_0 = 30^\circ, \\
+& p_{\theta 0} = 0, \quad p_{\phi 0} = 0.0, \quad p_{\psi 0} = 13.3 \\
+\\
+\text{Case 3:} \quad & M = 1.65, \quad g = 9.81, \quad I_1 = 0.75, \quad I_3 = 5.10, \\
+& \theta_0 = 0.5^\circ, \quad \phi_0 = 0^\circ, \quad \psi_0 = 0^\circ, \\
+& p_{\theta 0} = 35, \quad p_{\phi 0} = 0.2, \quad p_{\psi 0} = 4.4
+\end{aligned}
+$$
 
-```
-M = 1.05, g = 9.81, I1 = 0.15, I3 = 5.10,
-θ0 = 10°,  φ0 = 0°,  ψ0 = 0°,
-pθ0 = 0,   pφ0 = 5.30,  pψ0 = 4.80
-
-M = 1.15, g = 9.81, I1 = 0.23, I3 = 5.10,
-θ0 = 0.8°, φ0 = 24°, ψ0 = 30°,
-pθ0 = 0,   pφ0 = 0.0,  pψ0 = 13.3
-
-M = 1.65, g = 9.81, I1 = 0.75, I3 = 5.10,
-θ0 = 0.5°, φ0 = 0°,  ψ0 = 0°,
-pθ0 = 35,  pφ0 = 0.2,  pψ0 = 4.4
-```

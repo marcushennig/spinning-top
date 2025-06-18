@@ -8,10 +8,6 @@ public class SpinningTopSimulation {
         resetInitialConditions();
     }
 
-    private double norm(double x) {
-        return x < 0 ? -x : x;
-    }
-
     public void updateEnergy() {
         c.E = c.p_theta*c.p_theta/(2*c.J1) + c.M*c.g*c.l*Math.cos(c.theta)
                 + c.p_psi*c.p_psi/(2*c.J3)
@@ -35,8 +31,6 @@ public class SpinningTopSimulation {
 
     public Vector4d F(Vector4d x){
         double theta = x.get(1);
-        double phi = x.get(2);
-        double psi = x.get(3);
         double p_theta = x.get(4);
         double s_theta = Math.sin(theta);
         double c_theta = Math.cos(theta);
