@@ -1,6 +1,6 @@
 # Spinning Top Simulation
 
-This project visualises the motion of a symmetrical spinning top using Java and JOGL. The physics is based on the Hamiltonian formulation for a rigid body under gravity. The orientation of the top is described by the Euler angles `theta`, `phi` and `psi`. A fourth‑order Runge–Kutta method with adaptive step size integrates the equations of motion each frame and the result is rendered as a simple 3‑D cone.
+This project visualises the motion of a symmetrical spinning top using Java and LWJGL. The physics is based on the Hamiltonian formulation for a rigid body under gravity. The orientation of the top is described by the Euler angles `theta`, `phi` and `psi`. A fourth‑order Runge–Kutta method with adaptive step size integrates the equations of motion each frame and the result is rendered as a simple 3‑D cone.
 
 ## Building
 
@@ -10,7 +10,7 @@ The project uses Maven. Compile and package the application with
 mvn package
 ```
 
-This produces `target/spinning-top-1.0-SNAPSHOT.jar`. Maven will download JOGL and its dependencies when building for the first time.
+This produces `target/spinning-top-1.0-SNAPSHOT.jar`. Maven will download LWJGL and its dependencies, including the macOS ARM64 native libraries, when building for the first time.
 
 ## Running
 
@@ -22,7 +22,7 @@ java -jar target/spinning-top-1.0-SNAPSHOT.jar
 
 A window opens showing a spinning cone. The arrow keys are not used; the simulation simply runs with the configured parameters. To experiment with different motions edit the initial conditions in `SpinningTopSimulation` and rebuild.
 
-Make sure the JOGL native libraries are available on your system when running the program.
+LWJGL bundles the required native libraries so no additional setup is needed when running the program.
 
 ## Physics background
 
