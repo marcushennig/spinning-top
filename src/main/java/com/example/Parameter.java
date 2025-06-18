@@ -1,3 +1,6 @@
+package com.example;
+
+/** Configuration and state parameters for the spinning top simulation. */
 public class Parameter {
     public double theta;
     public double phi;

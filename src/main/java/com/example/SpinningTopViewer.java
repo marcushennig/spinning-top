@@ -1,3 +1,6 @@
+package com.example;
+
+/** Simple JOGL viewer for the spinning top simulation. */
 import com.jogamp.opengl.*;
 import com.jogamp.opengl.glu.GLU;
 import com.jogamp.opengl.util.gl2.GLUT;

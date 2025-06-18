@@ -1,3 +1,6 @@
+package com.example;
+
+/** Simple 4D vector utility used by the simulation. */
 public class Vector4d {
     public double x;
     public double y;
