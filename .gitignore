@@ -1,3 +1,5 @@
+# Ignore build artifacts
+target/
 target/spinning-top-1.0-SNAPSHOT.jar
 target/original-spinning-top-1.0-SNAPSHOT.jar
 dependency-reduced-pom.xml
