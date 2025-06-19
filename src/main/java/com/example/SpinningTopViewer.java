@@ -1,6 +1,7 @@
 package com.example;
 
 import com.jme3.app.SimpleApplication;
+import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
@@ -24,7 +25,10 @@ public class SpinningTopViewer extends SimpleApplication {
     public static void main(String[] args) {
         var app = new SpinningTopViewer();
         var settings = new AppSettings(true);
-        settings.setSamples(4); // 4x MSAA (anti-aliasing)
+        
+        settings.setTitle("Spinning Top Simulation"); // Set window title here
+        settings.setSamples(16); // 4x MSAA (anti-aliasing)
+        
         app.setSettings(settings);
         app.start();
     }
@@ -36,26 +40,32 @@ public class SpinningTopViewer extends SimpleApplication {
         topGeom = new Geometry("top", mesh);
 
         viewPort.setBackgroundColor(ColorRGBA.White);
+        setDisplayStatView(false); // Hides FPS and stats overlay
 
         var mat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
         mat.setBoolean("UseMaterialColors", true);
-        mat.setColor("Diffuse", new ColorRGBA(1f, 0.6f, 0.2f, 1f));
-        mat.setColor("Ambient", ColorRGBA.White);
-        // Make it shiny:
-        mat.setColor("Specular", ColorRGBA.White); // Strong specular highlight
-        mat.setFloat("Shininess", 64f); // Higher value = smaller, sharper highlight (default is 1–128)
+        mat.setColor("Diffuse", ColorRGBA.Orange);     // or interpolate via vertex color
+        mat.setColor("Specular", ColorRGBA.White);     // white specular highlights
+        mat.setFloat("Shininess", 64f);
 
         topGeom.setMaterial(mat);
         rootNode.attachChild(topGeom);
+ 
+        // Directional Light (Sun-like light)
+        var sun = new DirectionalLight();
+        sun.setColor(ColorRGBA.White);
+        sun.setDirection(new Vector3f(-1, -2, -3).normalizeLocal());  // light from above-left
+        rootNode.addLight(sun);
+        // Ambient Light (Soft fill)
+        var ambient = new AmbientLight();
+        ambient.setColor(ColorRGBA.White.mult(0.2f));  // subtle base illumination
+        rootNode.addLight(ambient);
 
-        var light = new DirectionalLight();
-        light.setDirection(new Vector3f(-1, -1, -1).normalizeLocal());
-        rootNode.addLight(light);
-
+        
         cam.setLocation(new Vector3f(0, 0, 100));
         cam.lookAt(Vector3f.ZERO, Vector3f.UNIT_Y);
 
-        BitmapFont font = assetManager.loadFont("Interface/Fonts/Default.fnt");
+        var font = assetManager.loadFont("Interface/Fonts/Default.fnt");
         hudText = new BitmapText(font);
         hudText.setSize(font.getCharSet().getRenderedSize());
         hudText.setColor(ColorRGBA.Black);
@@ -83,8 +93,8 @@ public class SpinningTopViewer extends SimpleApplication {
         topGeom.setLocalRotation(rot);
 
         hudText.setText(String.format(
-                "Energy: %.3f\nTheta: %.3f\nPhi: %.3f\nPsi: %.3f",
-                s.energy, s.theta, s.phi, s.psi));
+                "Time: %.3f\nEnergy: %.3f\ntheta: %.3f\nphi: %.3f\npsi: %.3f",
+                time, s.energy, s.theta, s.phi, s.psi));
     }
 
 }
