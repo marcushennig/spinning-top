@@ -7,10 +7,7 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.Mesh;
 import com.jme3.system.AppSettings;
-
-import com.example.DupineCyclideSurface;
 
 /**
  * Visualises the spinning top using jMonkeyEngine.
@@ -22,8 +19,8 @@ public class SpinningTopViewer extends SimpleApplication {
     private Geometry topGeom;
 
     public static void main(String[] args) {
-        SpinningTopViewer app = new SpinningTopViewer();
-        AppSettings settings = new AppSettings(true);
+        var app = new SpinningTopViewer();
+        var settings = new AppSettings(true);
         settings.setSamples(4); // 4x MSAA (anti-aliasing)
         app.setSettings(settings);
         app.start();
@@ -31,13 +28,13 @@ public class SpinningTopViewer extends SimpleApplication {
 
     @Override
     public void simpleInitApp() {
-        DupineCyclideSurface surface = new DupineCyclideSurface(30f, 27.8f, 5.99f, 9f, 100, 100);
-        Mesh mesh = surface.createMesh();
+        var surface = new DupineCyclideSurface(30f, 27.8f, 5.99f, 9f, 100, 100);
+        var mesh = surface.createMesh();
         topGeom = new Geometry("top", mesh);
 
         viewPort.setBackgroundColor(ColorRGBA.White);
 
-        Material mat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
+        var mat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
         mat.setBoolean("UseMaterialColors", true);
         mat.setColor("Diffuse", new ColorRGBA(1f, 0.6f, 0.2f, 1f));
         mat.setColor("Ambient", ColorRGBA.White);
@@ -48,7 +45,7 @@ public class SpinningTopViewer extends SimpleApplication {
         topGeom.setMaterial(mat);
         rootNode.attachChild(topGeom);
 
-        DirectionalLight light = new DirectionalLight();
+        var light = new DirectionalLight();
         light.setDirection(new Vector3f(-1, -1, -1).normalizeLocal());
         rootNode.addLight(light);
 
@@ -67,8 +64,8 @@ public class SpinningTopViewer extends SimpleApplication {
         simulation.evolute(time, time + dt);
         time += dt;
 
-        SpinningTopState s = simulation.getState();
-        Quaternion rot = new Quaternion().fromAngleAxis((float) s.phi, Vector3f.UNIT_Y)
+        var s = simulation.getState();
+        var rot = new Quaternion().fromAngleAxis((float) s.phi, Vector3f.UNIT_Y)
                 .mult(new Quaternion().fromAngleAxis((float) s.theta, Vector3f.UNIT_X))
                 .mult(new Quaternion().fromAngleAxis((float) s.psi, Vector3f.UNIT_Z));
         topGeom.setLocalRotation(rot);

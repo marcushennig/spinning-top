@@ -33,14 +33,14 @@ public class SpinningTopSimulation {
      * Recomputes the Hamiltonian energy from the current state.
      */
     public void updateEnergy() {
-        double sinTheta = Math.sin(state.theta);
-        double cosTheta = Math.cos(state.theta);
+        var sinTheta = Math.sin(state.theta);
+        var cosTheta = Math.cos(state.theta);
 
-        double kineticTheta = state.pTheta * state.pTheta / (2 * constants.inertiaPerpendicular);
-        double kineticPsi = state.pPsi * state.pPsi / (2 * constants.inertiaAxis);
-        double potential = constants.mass * constants.g * constants.l * cosTheta;
-        double phiTerm = state.pPhi - state.pPsi * cosTheta;
-        double kineticPhi = (phiTerm * phiTerm) / (2 * constants.inertiaPerpendicular * sinTheta * sinTheta);
+        var kineticTheta = state.pTheta * state.pTheta / (2 * constants.inertiaPerpendicular);
+        var kineticPsi = state.pPsi * state.pPsi / (2 * constants.inertiaAxis);
+        var potential = constants.mass * constants.g * constants.l * cosTheta;
+        var phiTerm = state.pPhi - state.pPsi * cosTheta;
+        var kineticPhi = (phiTerm * phiTerm) / (2 * constants.inertiaPerpendicular * sinTheta * sinTheta);
 
         state.energy = kineticTheta + kineticPsi + kineticPhi + potential;
     }
@@ -70,9 +70,9 @@ public class SpinningTopSimulation {
      */
     public void updateAngularVelocity() {
         // Compute sin and cos of theta once for readability
-        double sinTheta = Math.sin(state.theta);
-        double cosTheta = Math.cos(state.theta);
-        double sinThetaSq = sinTheta * sinTheta;
+        var sinTheta = Math.sin(state.theta);
+        var cosTheta = Math.cos(state.theta);
+        var sinThetaSq = sinTheta * sinTheta;
 
         // Angular velocity thetaDot
         state.thetaDot = state.pTheta / constants.inertiaPerpendicular;
@@ -81,10 +81,10 @@ public class SpinningTopSimulation {
         state.phiDot = (state.pPhi - state.pPsi * cosTheta) / (sinThetaSq * constants.inertiaPerpendicular);
 
         // Angular velocity psiDot
-        double numerator = constants.inertiaPerpendicular * state.pPsi
+        var numerator = constants.inertiaPerpendicular * state.pPsi
                  + constants.inertiaAxis * state.pPsi * cosTheta * cosTheta
                  - constants.inertiaAxis * state.pPhi * cosTheta;
-        double denominator = constants.inertiaPerpendicular * constants.inertiaAxis * sinThetaSq;
+        var denominator = constants.inertiaPerpendicular * constants.inertiaAxis * sinThetaSq;
         state.psiDot = numerator / denominator;
     }
 
@@ -96,27 +96,27 @@ public class SpinningTopSimulation {
      */
     public RealVector F(RealVector x){
         // Unpack state vector
-        double theta = x.getEntry(0);    
-        double pTheta = x.getEntry(3);
+        var theta = x.getEntry(0);    
+        var pTheta = x.getEntry(3);
 
         // Precompute trigonometric terms
-        double sinTheta = Math.sin(theta);
-        double cosTheta = Math.cos(theta);
-        double sinThetaSq = sinTheta * sinTheta;
+        var sinTheta = Math.sin(theta);
+        var cosTheta = Math.cos(theta);
+        var sinThetaSq = sinTheta * sinTheta;
 
         // Use current state for pPhi and pPsi (constants of motion in this reduced system)
-        double pPhi = state.pPhi;
-        double pPsi = state.pPsi;
+        var pPhi = state.pPhi;
+        var pPsi = state.pPsi;
 
         // Auxiliary term for compactness
-        double phiTerm = pPhi - pPsi * cosTheta;
+        var phiTerm = pPhi - pPsi * cosTheta;
 
         // Hamiltonian equations
-        double dTheta = pTheta / constants.inertiaPerpendicular;
-        double dPhi = phiTerm / (constants.inertiaPerpendicular * sinThetaSq);
-        double dPsi = pPsi / constants.inertiaAxis - cosTheta * phiTerm / (constants.inertiaPerpendicular * sinThetaSq);
+        var dTheta = pTheta / constants.inertiaPerpendicular;
+        var dPhi = phiTerm / (constants.inertiaPerpendicular * sinThetaSq);
+        var dPsi = pPsi / constants.inertiaAxis - cosTheta * phiTerm / (constants.inertiaPerpendicular * sinThetaSq);
 
-        double dPTheta =
+        var dPTheta =
             phiTerm * (
             -pPsi / (constants.inertiaPerpendicular * sinTheta)
             + phiTerm * cosTheta / (constants.inertiaPerpendicular * sinTheta * sinTheta * sinTheta)
@@ -135,13 +135,13 @@ public class SpinningTopSimulation {
      */
     public RealVector step(RealVector x, double h){
         // Compute Runge-Kutta increments
-        RealVector k1 = F(x);
-        RealVector k2 = F(x.add(k1.mapMultiply(h / 2.0)));
-        RealVector k3 = F(x.add(k2.mapMultiply(h / 2.0)));
-        RealVector k4 = F(x.add(k3.mapMultiply(h)));
+        var k1 = F(x);
+        var k2 = F(x.add(k1.mapMultiply(h / 2.0)));
+        var k3 = F(x.add(k2.mapMultiply(h / 2.0)));
+        var k4 = F(x.add(k3.mapMultiply(h)));
 
         // Weighted sum of increments
-        RealVector increment = k1
+        var increment = k1
             .add(k2.mapMultiply(2.0))
             .add(k3.mapMultiply(2.0))
             .add(k4)
@@ -158,32 +158,32 @@ public class SpinningTopSimulation {
      */
     public void evolute(double a,double b){
         // Initialize state vector and integration parameters
-        RealVector x = new ArrayRealVector(new double[] {
+        var x = new ArrayRealVector(new double[] {
             state.theta, state.phi, state.psi, state.pTheta
         });
-        double t = a;
-        double totalTime = b - a;
-        double h = totalTime / 10.0;
-        double hMax = totalTime / 2.0;
-        double eps = 1E-12;
-        int iter = 0;
+        var t = a;
+        var totalTime = b - a;
+        var h = totalTime / 10.0;
+        var hMax = totalTime / 2.0;
+        var eps = 1E-12;
+        var iter = 0;
 
         // Adaptive Runge-Kutta integration loop
         while (t < b && iter < itermax) {
             iter++;
             h = Math.min(h, b - t); // Ensure we don't step past the end
-            double H = h;
+            var H = h;
 
             // Two half-steps
-            RealVector u = x.add(step(x, H / 2));
+            var u = x.add(step(x, H / 2));
             u = u.add(step(u, H / 2));
 
             // One full step
-            RealVector v = x.add(step(x, H));
+            var v = x.add(step(x, H));
 
             // Estimate error
-            RealVector diff = u.subtract(v);
-            double error = Math.sqrt(diff.dotProduct(diff)) / 15.0;
+            var diff = u.subtract(v);
+            var error = Math.sqrt(diff.dotProduct(diff)) / 15.0;
 
             // Accept step if error is within tolerance
             if (error < accuracy) {

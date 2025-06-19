@@ -7,8 +7,11 @@ import com.jme3.scene.VertexBuffer;
 import com.jme3.util.BufferUtils;
 
 /**
- * Generates a Dupin cyclide mesh. Extracted from {@link SpinningTopViewer}
- * into its own helper class.
+ * Represents a Dupin cyclide surface, which is a type of ruled surface
+ * defined by four parameters (a, b, c, d) and discretized into a mesh.
+ * This class provides methods to create the mesh and calculate points
+ * and normals on the surface.
+ * https://en.wikipedia.org/wiki/Dupin_cyclide
  */
 public class DupineCyclideSurface {
 
@@ -18,7 +21,17 @@ public class DupineCyclideSurface {
     private final float d;
     private final int numU;
     private final int numV;
-
+    
+    /**
+     * Constructs a Dupin cyclide surface with the specified parameters.
+     *
+     * @param a    Parameter a of the cyclide.
+     * @param b    Parameter b of the cyclide.
+     * @param c    Parameter c of the cyclide.
+     * @param d    Parameter d of the cyclide.
+     * @param numU Number of segments in the u direction.
+     * @param numV Number of segments in the v direction.
+     */
     public DupineCyclideSurface(float a, float b, float c, float d, int numU, int numV) {
         this.a = a;
         this.b = b;
