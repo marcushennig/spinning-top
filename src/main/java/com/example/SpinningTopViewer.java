@@ -171,9 +171,9 @@ public class SpinningTopViewer {
             glLoadIdentity();
             
             lookAt(0, 0, 100, 0, 0, 0, 0, 1, 0);
-            glRotated(simulation.getParameter().phi * 180 / Math.PI, 0, 1, 0);
-            glRotated(simulation.getParameter().theta * 180 / Math.PI, 1, 0, 0);
-            glRotated(simulation.getParameter().psi * 180 / Math.PI, 0, 0, 1);
+            glRotated(simulation.getParameter().state.phi * 180 / Math.PI, 0, 1, 0);
+            glRotated(simulation.getParameter().state.theta * 180 / Math.PI, 1, 0, 0);
+            glRotated(simulation.getParameter().state.psi * 180 / Math.PI, 0, 0, 1);
 
             renderTorus(20, 10, 100, 100);
 
