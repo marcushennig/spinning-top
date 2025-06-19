@@ -19,4 +19,14 @@ public class SpinningTopState {
     public double pPhi;
     /** Momentum conjugate to {@code psi}. */
     public double pPsi;
+
+    /** Angular velocity about \u03b8. */
+    public double thetaDot;
+    /** Angular velocity about \u03c6. */
+    public double phiDot;
+    /** Angular velocity about \u03c8. */
+    public double psiDot;
+
+    /** Current Hamiltonian energy of the system. */
+    public double energy;
 }
