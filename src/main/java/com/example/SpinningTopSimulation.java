@@ -156,7 +156,7 @@ public class SpinningTopSimulation {
      * @param a start time
      * @param b end time
      */
-    public void NDSolve(double a,double b){
+    public void evolute(double a,double b){
         // Initialize state vector and integration parameters
         RealVector x = new ArrayRealVector(new double[] {
             state.theta, state.phi, state.psi, state.pTheta
