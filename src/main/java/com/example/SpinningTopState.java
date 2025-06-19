@@ -14,9 +14,9 @@ public class SpinningTopState {
     public double psi;
 
     /** Momentum conjugate to {@code theta}. */
-    public double p_theta;
+    public double pTheta;
     /** Momentum conjugate to {@code phi}. */
-    public double p_phi;
+    public double pPhi;
     /** Momentum conjugate to {@code psi}. */
-    public double p_psi;
+    public double pPsi;
 }

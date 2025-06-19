@@ -12,14 +12,14 @@ public class Parameter {
     public PhysicalConstants constants = new PhysicalConstants();
 
     /** Angular velocity about \u03b8. */
-    public double Dtheta;
+    public double thetaDot;
     /** Angular velocity about \u03c6. */
-    public double Dphi;
+    public double phiDot;
     /** Angular velocity about \u03c8. */
-    public double Dpsi;
+    public double psiDot;
 
     /** Current energy of the system. */
-    public double E;
+    public double energy;
     /** Maximum number of iterations for the integrator. */
     public int itermax;
     /** Desired accuracy for the integrator. */

@@ -24,10 +24,10 @@ public class SpinningTopSimulation {
      * Recomputes the Hamiltonian energy from the current state.
      */
     public void updateEnergy() {
-        c.E = c.state.p_theta*c.state.p_theta/(2*c.constants.J1)
+        c.energy = c.state.pTheta*c.state.pTheta/(2*c.constants.J1)
                 + c.constants.M*c.constants.g*c.constants.l*Math.cos(c.state.theta)
-                + c.state.p_psi*c.state.p_psi/(2*c.constants.J3)
-                + Math.pow((c.state.p_phi - c.state.p_psi*Math.cos(c.state.theta)), 2.0)
+                + c.state.pPsi*c.state.pPsi/(2*c.constants.J3)
+                + Math.pow((c.state.pPhi - c.state.pPsi*Math.cos(c.state.theta)), 2.0)
                   /(2*c.constants.J1*Math.pow(Math.sin(c.state.theta),2.0));
     }
 
@@ -35,22 +35,22 @@ public class SpinningTopSimulation {
      * Updates the canonical momenta based on the current angular velocities.
      */
     public void updateAngularMomentum() {
-        c.state.p_theta = c.constants.J1 * c.Dtheta;
-        c.state.p_phi = c.constants.J3*Math.cos(c.state.theta)*c.Dpsi
+        c.state.pTheta = c.constants.J1 * c.thetaDot;
+        c.state.pPhi = c.constants.J3*Math.cos(c.state.theta)*c.psiDot
                 + (c.constants.J1*Math.pow(Math.sin(c.state.theta),2)
-                   + c.constants.J3*Math.pow(Math.cos(c.state.theta),2))*c.Dphi;
-        c.state.p_psi = c.constants.J3*(Math.cos(c.state.theta)*c.Dphi + c.Dpsi);
+                   + c.constants.J3*Math.pow(Math.cos(c.state.theta),2))*c.phiDot;
+        c.state.pPsi = c.constants.J3*(Math.cos(c.state.theta)*c.phiDot + c.psiDot);
     }
 
     /**
      * Updates the angular velocities from the current momenta.
      */
     public void updateAngularVelocity() {
-        c.Dtheta = c.state.p_theta/c.constants.J1;
-        c.Dphi = (c.state.p_phi - c.state.p_psi*Math.cos(c.state.theta))
+        c.thetaDot = c.state.pTheta/c.constants.J1;
+        c.phiDot = (c.state.pPhi - c.state.pPsi*Math.cos(c.state.theta))
                 /(Math.pow(Math.sin(c.state.theta),2)*c.constants.J1);
-        c.Dpsi = (c.constants.J1*c.state.p_psi + c.constants.J3*c.state.p_psi*Math.pow(Math.cos(c.state.theta),2)
-                - c.constants.J3*c.state.p_phi*Math.cos(c.state.theta))
+        c.psiDot = (c.constants.J1*c.state.pPsi + c.constants.J3*c.state.pPsi*Math.pow(Math.cos(c.state.theta),2)
+                - c.constants.J3*c.state.pPhi*Math.cos(c.state.theta))
                 /(c.constants.J1*c.constants.J3*Math.pow(Math.sin(c.state.theta),2));
     }
 
@@ -65,13 +65,13 @@ public class SpinningTopSimulation {
         double p_theta = x.getEntry(3);
         double s_theta = Math.sin(theta);
         double c_theta = Math.cos(theta);
-        double A = c.state.p_phi - c.state.p_psi * c_theta;
+        double A = c.state.pPhi - c.state.pPsi * c_theta;
 
         return new ArrayRealVector(new double[]{
             p_theta / c.constants.J1,
             A / (c.constants.J1*s_theta*s_theta),
-            c.state.p_psi / c.constants.J3 - c_theta*A/(c.constants.J1*s_theta*s_theta),
-            A * (-c.state.p_psi/(c.constants.J1*s_theta) + A * c_theta/(c.constants.J1*s_theta*s_theta*s_theta))
+            c.state.pPsi / c.constants.J3 - c_theta*A/(c.constants.J1*s_theta*s_theta),
+            A * (-c.state.pPsi/(c.constants.J1*s_theta) + A * c_theta/(c.constants.J1*s_theta*s_theta*s_theta))
                     + c.constants.M*c.constants.g*c.constants.l*s_theta
         });
     }
@@ -98,7 +98,7 @@ public class SpinningTopSimulation {
      * @param b end time
      */
     public void NDSolve(double a,double b){
-        RealVector x = new ArrayRealVector(new double[]{c.state.theta,c.state.phi,c.state.psi,c.state.p_theta});
+        RealVector x = new ArrayRealVector(new double[]{c.state.theta,c.state.phi,c.state.psi,c.state.pTheta});
         double t=a;
         double h=(b-a)/10.0;
         double hmax=(b-a)/2.0;
@@ -120,7 +120,7 @@ public class SpinningTopSimulation {
         c.state.theta=x.getEntry(0);
         c.state.phi=x.getEntry(1);
         c.state.psi=x.getEntry(2);
-        c.state.p_theta=x.getEntry(3);
+        c.state.pTheta=x.getEntry(3);
     }
 
     /**
@@ -140,9 +140,9 @@ public class SpinningTopSimulation {
         c.state.phi = 0;
         c.state.psi = 0;
 
-        c.Dtheta = 0.0;
-        c.Dphi = 0.0;
-        c.Dpsi = 56;
+        c.thetaDot = 0.0;
+        c.phiDot = 0.0;
+        c.psiDot = 56;
 
         c.dt = 0.001;
 
