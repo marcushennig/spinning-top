@@ -19,7 +19,7 @@ public class SpinningTopSimulation {
     /** Desired accuracy for the integrator. */
     private final double accuracy = 1E-6;
     /** Integration time step used by the viewer. */
-    private final double dt = 0.0001;
+    private final double dt = 0.0005;
 
     /**
      * Constructs a new simulation instance and initialises the
@@ -218,11 +218,11 @@ public class SpinningTopSimulation {
     public void resetInitialConditions() {
 
         // Set physical constants to typical spinning top values
-        constants.inertiaPerpendicular = 0.75;   // Moment of inertia about axis 1 (kg·m²)
+        constants.inertiaPerpendicular = 3.75;   // Moment of inertia about axis 1 (kg·m²)
         constants.inertiaAxis = 5.10;   // Moment of inertia about axis 3 (kg·m²)
         constants.mass = 1.65;    // Mass (kg)
         constants.g = 9.81;    // Gravitational acceleration (m/s²)
-        constants.l = 20;    // Distance from pivot to center of mass (m)
+        constants.l = 70;    // Distance from pivot to center of mass (m)
 
         // Set initial angles (radians)
         state.theta = 0.5 * Math.PI; // 90 degrees (horizontal)

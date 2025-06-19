@@ -11,6 +11,7 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.debug.Arrow;
 import com.jme3.scene.Mesh;
+import com.jme3.scene.Spatial;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.util.BufferUtils;
 import com.jme3.system.AppSettings;
@@ -22,7 +23,10 @@ public class SpinningTopViewer extends SimpleApplication {
 
     private final SpinningTopSimulation simulation = new SpinningTopSimulation();
     private double time = 0.0;
+    private final int maxTrajectorySize = 10000; // Maximum number of trajectory points to store
+
     private Geometry topGeom;
+    
     private BitmapText hudText;
     private Geometry axisArrowGeom;
     private Geometry trajectoryGeom;
@@ -34,7 +38,7 @@ public class SpinningTopViewer extends SimpleApplication {
         
         settings.setTitle("Spinning Top Simulation"); // Set window title here
         settings.setSamples(16); // 4x MSAA (anti-aliasing)
-        settings.setResolution(1200, 900); // Set window size: width x height
+        settings.setResolution(1000, 900); // Set window size: width x height
 
         app.setSettings(settings);
         app.start();
@@ -48,29 +52,33 @@ public class SpinningTopViewer extends SimpleApplication {
 
         viewPort.setBackgroundColor(ColorRGBA.White);
         setDisplayStatView(false); // Hides FPS and stats overlay
-        flyCam.setEnabled(false); // Disables mouse camera movement
+        flyCam.setEnabled(true); // Disables mouse camera movement
 
-        var mat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
-        mat.setBoolean("UseMaterialColors", true);
-        mat.setColor("Diffuse", ColorRGBA.Orange);     // or interpolate via vertex color
-        mat.setColor("Specular", ColorRGBA.White);     // white specular highlights
-        mat.setFloat("Shininess", 64f);
-
-        topGeom.setMaterial(mat);
+        var solidMat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
+        solidMat.setBoolean("UseMaterialColors", true);
+        solidMat.setColor("Diffuse", new ColorRGBA(1f, 0.4f, 0.1f, 1f));
+        solidMat.setColor("Ambient", new ColorRGBA(1f, 0.4f, 0.1f, 1f));
+        solidMat.setColor("Specular", ColorRGBA.White);
+        solidMat.setFloat("Shininess", 32f);
+        
+        topGeom.setMaterial(solidMat);
+        
+       
         rootNode.attachChild(topGeom);
- 
+       
+
         // Directional Light (Sun-like light)
         var sun = new DirectionalLight();
         sun.setColor(ColorRGBA.White);
-        sun.setDirection(new Vector3f(-1, -2, -3).normalizeLocal());  // light from above-left
+        sun.setDirection(new Vector3f(-1, -1, -1).normalizeLocal());  // light from above-left
         rootNode.addLight(sun);
         // Ambient Light (Soft fill)
         var ambient = new AmbientLight();
-        ambient.setColor(ColorRGBA.White.mult(0.2f));  // subtle base illumination
+        ambient.setColor(ColorRGBA.White.mult(0.4f));  // subtle base illumination
         rootNode.addLight(ambient);
 
         
-        cam.setLocation(new Vector3f(0, 0, 100));
+        cam.setLocation(new Vector3f(0, 200, 200));
         cam.lookAt(Vector3f.ZERO, Vector3f.UNIT_Y);
 
         var font = assetManager.loadFont("Interface/Fonts/Default.fnt");
@@ -93,10 +101,11 @@ public class SpinningTopViewer extends SimpleApplication {
         // Blue polyline for the recent trajectory
         trajectoryGeom = new Geometry("trajectory", new Mesh());
         var blueMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        blueMat.setColor("Color", ColorRGBA.Blue);
+        blueMat.setColor("Color", ColorRGBA.Pink);
         trajectoryGeom.setMaterial(blueMat);
         rootNode.attachChild(trajectoryGeom);
     }
+
     /**
      * Resets the simulation to initial conditions.
      * This method is called when the application starts.
@@ -115,6 +124,7 @@ public class SpinningTopViewer extends SimpleApplication {
         var rot = new Quaternion().fromAngleAxis((float) s.phi, Vector3f.UNIT_Y)
                 .mult(new Quaternion().fromAngleAxis((float) s.theta, Vector3f.UNIT_X))
                 .mult(new Quaternion().fromAngleAxis((float) s.psi, Vector3f.UNIT_Z));
+        
         topGeom.setLocalRotation(rot);
 
         // Compute centre-of-mass position from Euler angles
@@ -132,7 +142,7 @@ public class SpinningTopViewer extends SimpleApplication {
 
     private void updateTrajectory(Vector3f pos) {
         trajectory.add(pos.clone());
-        if (trajectory.size() > 1000) {
+        if (trajectory.size() > maxTrajectorySize) {
             trajectory.remove(0);
         }
     }
