@@ -14,11 +14,12 @@ public class SpinningTopSimulation {
     /** Physical constants used in the model. */
     private PhysicalConstants constants = new PhysicalConstants();
     /** Maximum number of iterations for the integrator. */
-    private int itermax;
+    
+    private final int itermax = 10000;
     /** Desired accuracy for the integrator. */
-    private double accuracy;
+    private final double accuracy = 1E-6;
     /** Integration time step used by the viewer. */
-    private double dt;
+    private final double dt = 0.001;
 
     /**
      * Constructs a new simulation instance and initialises the
@@ -215,25 +216,25 @@ public class SpinningTopSimulation {
      * Restores a set of default parameters and state.
      */
     public void resetInitialConditions() {
-        constants.J1 = 0.75;
-        constants.J3 = 5.10;
-        constants.M = 1.65;
-        constants.g = 9.81;
-        constants.l = 80;
 
-        accuracy = 1E-4;
-        itermax = 10000;
+        // Set physical constants to typical spinning top values
+        constants.J1 = 0.75;   // Moment of inertia about axis 1 (kg·m²)
+        constants.J3 = 5.10;   // Moment of inertia about axis 3 (kg·m²)
+        constants.M = 1.65;    // Mass (kg)
+        constants.g = 9.81;    // Gravitational acceleration (m/s²)
+        constants.l = 0.80;    // Distance from pivot to center of mass (m)
 
-        state.theta = 0.5*Math.PI;
-        state.phi = 0;
-        state.psi = 0;
+        // Set initial angles (radians)
+        state.theta = 0.5 * Math.PI; // 90 degrees (horizontal)
+        state.phi = 0.0;
+        state.psi = 0.0;
 
+        // Set initial angular velocities (rad/s)
         state.thetaDot = 0.0;
         state.phiDot = 0.0;
-        state.psiDot = 56;
+        state.psiDot = 56.0;
 
-        dt = 0.001;
-
+        // Update momenta and energy to match initial conditions
         updateAngularMomentum();
         updateEnergy();
     }
