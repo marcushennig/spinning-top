@@ -222,7 +222,7 @@ public class SpinningTopSimulation {
         constants.inertiaAxis = 5.10;   // Moment of inertia about axis 3 (kg·m²)
         constants.mass = 1.65;    // Mass (kg)
         constants.g = 9.81;    // Gravitational acceleration (m/s²)
-        constants.l = 0.80;    // Distance from pivot to center of mass (m)
+        constants.l = 20;    // Distance from pivot to center of mass (m)
 
         // Set initial angles (radians)
         state.theta = 0.5 * Math.PI; // 90 degrees (horizontal)
