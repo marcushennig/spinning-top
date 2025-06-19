@@ -17,7 +17,7 @@ This produces `target/spinning-top-1.0-SNAPSHOT.jar`. Maven will download jMonke
 Execute the application with
 
 ```bash
-java -jar target/spinning-top-1.0-SNAPSHOT.jar
+java  -XstartOnFirstThread -jar target/spinning-top-1.0-SNAPSHOT.jar
 ```
 
 A window opens showing a spinning cone. The arrow keys are not used; the simulation simply runs with the configured parameters. To experiment with different motions edit the initial conditions in `SpinningTopSimulation` and rebuild.

@@ -10,6 +10,7 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer;
+import com.jme3.system.AppSettings;
 import com.jme3.util.BufferUtils;
 
 /**
@@ -23,6 +24,9 @@ public class SpinningTopViewer extends SimpleApplication {
 
     public static void main(String[] args) {
         SpinningTopViewer app = new SpinningTopViewer();
+        AppSettings settings = new AppSettings(true);
+        settings.setSamples(4); // 4x MSAA (anti-aliasing)
+        app.setSettings(settings);
         app.start();
     }
 
@@ -31,10 +35,16 @@ public class SpinningTopViewer extends SimpleApplication {
         Mesh mesh = createDupinCyclide(30f, 27.8f, 5.99f, 9f, 100, 100);
         topGeom = new Geometry("top", mesh);
 
+        viewPort.setBackgroundColor(ColorRGBA.White);
+
         Material mat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
         mat.setBoolean("UseMaterialColors", true);
         mat.setColor("Diffuse", new ColorRGBA(1f, 0.6f, 0.2f, 1f));
         mat.setColor("Ambient", ColorRGBA.White);
+        // Make it shiny:
+        mat.setColor("Specular", ColorRGBA.White); // Strong specular highlight
+        mat.setFloat("Shininess", 64f); // Higher value = smaller, sharper highlight (default is 1–128)
+
         topGeom.setMaterial(mat);
         rootNode.attachChild(topGeom);
 
