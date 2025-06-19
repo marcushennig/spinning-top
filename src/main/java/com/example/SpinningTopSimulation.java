@@ -210,6 +210,9 @@ public class SpinningTopSimulation {
         state.phi = x.getEntry(1);
         state.psi = x.getEntry(2);
         state.pTheta = x.getEntry(3);
+
+        //updateAngularMomentum();
+        updateEnergy();
     }
 
     /**
