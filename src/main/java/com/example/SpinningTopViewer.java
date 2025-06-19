@@ -171,14 +171,14 @@ public class SpinningTopViewer {
             glLoadIdentity();
             
             lookAt(0, 0, 100, 0, 0, 0, 0, 1, 0);
-            glRotated(simulation.getParameter().state.phi * 180 / Math.PI, 0, 1, 0);
-            glRotated(simulation.getParameter().state.theta * 180 / Math.PI, 1, 0, 0);
-            glRotated(simulation.getParameter().state.psi * 180 / Math.PI, 0, 0, 1);
+            glRotated(simulation.getState().phi * 180 / Math.PI, 0, 1, 0);
+            glRotated(simulation.getState().theta * 180 / Math.PI, 1, 0, 0);
+            glRotated(simulation.getState().psi * 180 / Math.PI, 0, 0, 1);
 
             renderTorus(20, 10, 100, 100);
 
-            time += simulation.getParameter().dt;
-            simulation.NDSolve(time, time + simulation.getParameter().dt);
+            time += simulation.getDt();
+            simulation.NDSolve(time, time + simulation.getDt());
 
             glfwSwapBuffers(window); // swap the color buffers
             // Poll for window events. The key callback above will only be
