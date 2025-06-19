@@ -11,15 +11,6 @@ public class Parameter {
     /** Physical constants of the system. */
     public PhysicalConstants constants = new PhysicalConstants();
 
-    /** Angular velocity about \u03b8. */
-    public double thetaDot;
-    /** Angular velocity about \u03c6. */
-    public double phiDot;
-    /** Angular velocity about \u03c8. */
-    public double psiDot;
-
-    /** Current energy of the system. */
-    public double energy;
     /** Maximum number of iterations for the integrator. */
     public int itermax;
     /** Desired accuracy for the integrator. */
