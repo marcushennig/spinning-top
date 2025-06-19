@@ -19,7 +19,7 @@ public class SpinningTopSimulation {
     /** Desired accuracy for the integrator. */
     private final double accuracy = 1E-6;
     /** Integration time step used by the viewer. */
-    private final double dt = 0.001;
+    private final double dt = 0.0001;
 
     /**
      * Constructs a new simulation instance and initialises the
@@ -230,8 +230,8 @@ public class SpinningTopSimulation {
         state.psi = 0.0;
 
         // Set initial angular velocities (rad/s)
-        state.thetaDot = 0.0;
-        state.phiDot = 0.0;
+        state.thetaDot = 30.0;
+        state.phiDot = 22.0;
         state.psiDot = 56.0;
 
         // Update momenta and energy to match initial conditions
