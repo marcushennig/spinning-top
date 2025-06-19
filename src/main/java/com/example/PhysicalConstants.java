@@ -5,13 +5,13 @@ package com.example;
  */
 public class PhysicalConstants {
     /** Mass of the top. */
-    public double M;
+    public double mass;
     /** Gravitational acceleration. */
     public double g;
     /** Distance from pivot to center of mass. */
     public double l;
     /** Principal moment of inertia about axes perpendicular to symmetry axis. */
-    public double J1;
+    public double inertiaPerpendicular;
     /** Principal moment of inertia about the symmetry axis. */
-    public double J3;
+    public double inertiaAxis;
 }

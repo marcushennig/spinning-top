@@ -36,11 +36,11 @@ public class SpinningTopSimulation {
         double sinTheta = Math.sin(state.theta);
         double cosTheta = Math.cos(state.theta);
 
-        double kineticTheta = state.pTheta * state.pTheta / (2 * constants.J1);
-        double kineticPsi = state.pPsi * state.pPsi / (2 * constants.J3);
-        double potential = constants.M * constants.g * constants.l * cosTheta;
+        double kineticTheta = state.pTheta * state.pTheta / (2 * constants.inertiaPerpendicular);
+        double kineticPsi = state.pPsi * state.pPsi / (2 * constants.inertiaAxis);
+        double potential = constants.mass * constants.g * constants.l * cosTheta;
         double phiTerm = state.pPhi - state.pPsi * cosTheta;
-        double kineticPhi = (phiTerm * phiTerm) / (2 * constants.J1 * sinTheta * sinTheta);
+        double kineticPhi = (phiTerm * phiTerm) / (2 * constants.inertiaPerpendicular * sinTheta * sinTheta);
 
         state.energy = kineticTheta + kineticPsi + kineticPhi + potential;
     }
@@ -55,14 +55,14 @@ public class SpinningTopSimulation {
         double cosThetaSq = cosTheta * cosTheta;
 
         // pTheta: conjugate momentum for theta
-        state.pTheta = constants.J1 * state.thetaDot;
+        state.pTheta = constants.inertiaPerpendicular * state.thetaDot;
 
         // pPhi: conjugate momentum for phi
-        state.pPhi = constants.J3 * cosTheta * state.psiDot
-            + (constants.J1 * sinThetaSq + constants.J3 * cosThetaSq) * state.phiDot;
+        state.pPhi = constants.inertiaAxis * cosTheta * state.psiDot
+            + (constants.inertiaPerpendicular * sinThetaSq + constants.inertiaAxis * cosThetaSq) * state.phiDot;
 
         // pPsi: conjugate momentum for psi
-        state.pPsi = constants.J3 * (cosTheta * state.phiDot + state.psiDot);
+        state.pPsi = constants.inertiaAxis * (cosTheta * state.phiDot + state.psiDot);
     }
 
     /**
@@ -75,16 +75,16 @@ public class SpinningTopSimulation {
         double sinThetaSq = sinTheta * sinTheta;
 
         // Angular velocity thetaDot
-        state.thetaDot = state.pTheta / constants.J1;
+        state.thetaDot = state.pTheta / constants.inertiaPerpendicular;
 
         // Angular velocity phiDot
-        state.phiDot = (state.pPhi - state.pPsi * cosTheta) / (sinThetaSq * constants.J1);
+        state.phiDot = (state.pPhi - state.pPsi * cosTheta) / (sinThetaSq * constants.inertiaPerpendicular);
 
         // Angular velocity psiDot
-        double numerator = constants.J1 * state.pPsi
-                 + constants.J3 * state.pPsi * cosTheta * cosTheta
-                 - constants.J3 * state.pPhi * cosTheta;
-        double denominator = constants.J1 * constants.J3 * sinThetaSq;
+        double numerator = constants.inertiaPerpendicular * state.pPsi
+                 + constants.inertiaAxis * state.pPsi * cosTheta * cosTheta
+                 - constants.inertiaAxis * state.pPhi * cosTheta;
+        double denominator = constants.inertiaPerpendicular * constants.inertiaAxis * sinThetaSq;
         state.psiDot = numerator / denominator;
     }
 
@@ -112,16 +112,16 @@ public class SpinningTopSimulation {
         double phiTerm = pPhi - pPsi * cosTheta;
 
         // Hamiltonian equations
-        double dTheta = pTheta / constants.J1;
-        double dPhi = phiTerm / (constants.J1 * sinThetaSq);
-        double dPsi = pPsi / constants.J3 - cosTheta * phiTerm / (constants.J1 * sinThetaSq);
+        double dTheta = pTheta / constants.inertiaPerpendicular;
+        double dPhi = phiTerm / (constants.inertiaPerpendicular * sinThetaSq);
+        double dPsi = pPsi / constants.inertiaAxis - cosTheta * phiTerm / (constants.inertiaPerpendicular * sinThetaSq);
 
         double dPTheta =
             phiTerm * (
-            -pPsi / (constants.J1 * sinTheta)
-            + phiTerm * cosTheta / (constants.J1 * sinTheta * sinTheta * sinTheta)
+            -pPsi / (constants.inertiaPerpendicular * sinTheta)
+            + phiTerm * cosTheta / (constants.inertiaPerpendicular * sinTheta * sinTheta * sinTheta)
             )
-            + constants.M * constants.g * constants.l * sinTheta;
+            + constants.mass * constants.g * constants.l * sinTheta;
 
         return new ArrayRealVector(new double[] { dTheta, dPhi, dPsi, dPTheta });
     }
@@ -218,9 +218,9 @@ public class SpinningTopSimulation {
     public void resetInitialConditions() {
 
         // Set physical constants to typical spinning top values
-        constants.J1 = 0.75;   // Moment of inertia about axis 1 (kg·m²)
-        constants.J3 = 5.10;   // Moment of inertia about axis 3 (kg·m²)
-        constants.M = 1.65;    // Mass (kg)
+        constants.inertiaPerpendicular = 0.75;   // Moment of inertia about axis 1 (kg·m²)
+        constants.inertiaAxis = 5.10;   // Moment of inertia about axis 3 (kg·m²)
+        constants.mass = 1.65;    // Mass (kg)
         constants.g = 9.81;    // Gravitational acceleration (m/s²)
         constants.l = 0.80;    // Distance from pivot to center of mass (m)
 
