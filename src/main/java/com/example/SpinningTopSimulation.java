@@ -32,34 +32,59 @@ public class SpinningTopSimulation {
      * Recomputes the Hamiltonian energy from the current state.
      */
     public void updateEnergy() {
-        state.energy = state.pTheta*state.pTheta/(2*constants.J1)
-                + constants.M*constants.g*constants.l*Math.cos(state.theta)
-                + state.pPsi*state.pPsi/(2*constants.J3)
-                + Math.pow((state.pPhi - state.pPsi*Math.cos(state.theta)), 2.0)
-                  /(2*constants.J1*Math.pow(Math.sin(state.theta),2.0));
+        double sinTheta = Math.sin(state.theta);
+        double cosTheta = Math.cos(state.theta);
+
+        double kineticTheta = state.pTheta * state.pTheta / (2 * constants.J1);
+        double kineticPsi = state.pPsi * state.pPsi / (2 * constants.J3);
+        double potential = constants.M * constants.g * constants.l * cosTheta;
+        double phiTerm = state.pPhi - state.pPsi * cosTheta;
+        double kineticPhi = (phiTerm * phiTerm) / (2 * constants.J1 * sinTheta * sinTheta);
+
+        state.energy = kineticTheta + kineticPsi + kineticPhi + potential;
     }
 
     /**
      * Updates the canonical momenta based on the current angular velocities.
      */
     public void updateAngularMomentum() {
+        double sinTheta = Math.sin(state.theta);
+        double cosTheta = Math.cos(state.theta);
+        double sinThetaSq = sinTheta * sinTheta;
+        double cosThetaSq = cosTheta * cosTheta;
+
+        // pTheta: conjugate momentum for theta
         state.pTheta = constants.J1 * state.thetaDot;
-        state.pPhi = constants.J3*Math.cos(state.theta)*state.psiDot
-                + (constants.J1*Math.pow(Math.sin(state.theta),2)
-                   + constants.J3*Math.pow(Math.cos(state.theta),2))*state.phiDot;
-        state.pPsi = constants.J3*(Math.cos(state.theta)*state.phiDot + state.psiDot);
+
+        // pPhi: conjugate momentum for phi
+        state.pPhi = constants.J3 * cosTheta * state.psiDot
+            + (constants.J1 * sinThetaSq + constants.J3 * cosThetaSq) * state.phiDot;
+
+        // pPsi: conjugate momentum for psi
+        state.pPsi = constants.J3 * (cosTheta * state.phiDot + state.psiDot);
     }
 
     /**
      * Updates the angular velocities from the current momenta.
      */
     public void updateAngularVelocity() {
-        state.thetaDot = state.pTheta/constants.J1;
-        state.phiDot = (state.pPhi - state.pPsi*Math.cos(state.theta))
-                /(Math.pow(Math.sin(state.theta),2)*constants.J1);
-        state.psiDot = (constants.J1*state.pPsi + constants.J3*state.pPsi*Math.pow(Math.cos(state.theta),2)
-                - constants.J3*state.pPhi*Math.cos(state.theta))
-                /(constants.J1*constants.J3*Math.pow(Math.sin(state.theta),2));
+        // Compute sin and cos of theta once for readability
+        double sinTheta = Math.sin(state.theta);
+        double cosTheta = Math.cos(state.theta);
+        double sinThetaSq = sinTheta * sinTheta;
+
+        // Angular velocity thetaDot
+        state.thetaDot = state.pTheta / constants.J1;
+
+        // Angular velocity phiDot
+        state.phiDot = (state.pPhi - state.pPsi * cosTheta) / (sinThetaSq * constants.J1);
+
+        // Angular velocity psiDot
+        double numerator = constants.J1 * state.pPsi
+                 + constants.J3 * state.pPsi * cosTheta * cosTheta
+                 - constants.J3 * state.pPhi * cosTheta;
+        double denominator = constants.J1 * constants.J3 * sinThetaSq;
+        state.psiDot = numerator / denominator;
     }
 
     /**
@@ -69,19 +94,37 @@ public class SpinningTopSimulation {
      * @return time derivative of {@code x}
      */
     public RealVector F(RealVector x){
+        // Unpack state vector
         double theta = x.getEntry(0);
-        double p_theta = x.getEntry(3);
-        double s_theta = Math.sin(theta);
-        double c_theta = Math.cos(theta);
-        double A = state.pPhi - state.pPsi * c_theta;
+        double phi = x.getEntry(1);
+        double psi = x.getEntry(2);
+        double pTheta = x.getEntry(3);
 
-        return new ArrayRealVector(new double[]{
-            p_theta / constants.J1,
-            A / (constants.J1*s_theta*s_theta),
-            state.pPsi / constants.J3 - c_theta*A/(constants.J1*s_theta*s_theta),
-            A * (-state.pPsi/(constants.J1*s_theta) + A * c_theta/(constants.J1*s_theta*s_theta*s_theta))
-                    + constants.M*constants.g*constants.l*s_theta
-        });
+        // Precompute trigonometric terms
+        double sinTheta = Math.sin(theta);
+        double cosTheta = Math.cos(theta);
+        double sinThetaSq = sinTheta * sinTheta;
+
+        // Use current state for pPhi and pPsi (constants of motion in this reduced system)
+        double pPhi = state.pPhi;
+        double pPsi = state.pPsi;
+
+        // Auxiliary term for compactness
+        double phiTerm = pPhi - pPsi * cosTheta;
+
+        // Hamiltonian equations
+        double dTheta = pTheta / constants.J1;
+        double dPhi = phiTerm / (constants.J1 * sinThetaSq);
+        double dPsi = pPsi / constants.J3 - cosTheta * phiTerm / (constants.J1 * sinThetaSq);
+
+        double dPTheta =
+            phiTerm * (
+            -pPsi / (constants.J1 * sinTheta)
+            + phiTerm * cosTheta / (constants.J1 * sinTheta * sinTheta * sinTheta)
+            )
+            + constants.M * constants.g * constants.l * sinTheta;
+
+        return new ArrayRealVector(new double[] { dTheta, dPhi, dPsi, dPTheta });
     }
 
     /**
@@ -92,11 +135,20 @@ public class SpinningTopSimulation {
      * @return increment to be added to {@code x}
      */
     public RealVector step(RealVector x, double h){
-        RealVector k1 = F(x).mapMultiply(h);
-        RealVector k2 = F(x.add(k1.mapMultiply(0.5))).mapMultiply(h);
-        RealVector k3 = F(x.add(k2.mapMultiply(0.5))).mapMultiply(h);
-        RealVector k4 = F(x.add(k3)).mapMultiply(h);
-        return k1.add(k2.mapMultiply(2)).add(k3.mapMultiply(2)).add(k4).mapDivide(6.0);
+        // Compute Runge-Kutta increments
+        RealVector k1 = F(x);
+        RealVector k2 = F(x.add(k1.mapMultiply(h / 2.0)));
+        RealVector k3 = F(x.add(k2.mapMultiply(h / 2.0)));
+        RealVector k4 = F(x.add(k3.mapMultiply(h)));
+
+        // Weighted sum of increments
+        RealVector increment = k1
+            .add(k2.mapMultiply(2.0))
+            .add(k3.mapMultiply(2.0))
+            .add(k4)
+            .mapMultiply(h / 6.0);
+
+        return increment;
     }
 
     /**
@@ -106,54 +158,90 @@ public class SpinningTopSimulation {
      * @param b end time
      */
     public void NDSolve(double a,double b){
-        RealVector x = new ArrayRealVector(new double[]{state.theta,state.phi,state.psi,state.pTheta});
-        double t=a;
-        double h=(b-a)/10.0;
-        double hmax=(b-a)/2.0;
-        double eps=1E-12;
-        int iter=0;
-        while(t<b && iter<itermax){
-            iter++; h=Math.min(h,b-t);
-            double H=h;
-            RealVector u=x.add(step(x,H/2));
-            u=u.add(step(u,H/2));
-            RealVector v=x.add(step(x,H));
-            RealVector d=u.subtract(v);
-            double error=Math.sqrt(d.dotProduct(d))/15.0;
-            if(error < accuracy){ t=t+H; x=u; }
-            if(error>=eps) h=Math.min(2*H, Math.min(0.9*H*Math.pow(accuracy/error,0.2),hmax));
-            else h=Math.min(2*H, hmax);
-            if(h<eps) h=2*eps;
+        // Initialize state vector and integration parameters
+        RealVector x = new ArrayRealVector(new double[] {
+            state.theta, state.phi, state.psi, state.pTheta
+        });
+        double t = a;
+        double totalTime = b - a;
+        double h = totalTime / 10.0;
+        double hMax = totalTime / 2.0;
+        double eps = 1E-12;
+        int iter = 0;
+
+        // Adaptive Runge-Kutta integration loop
+        while (t < b && iter < itermax) {
+            iter++;
+            h = Math.min(h, b - t); // Ensure we don't step past the end
+            double H = h;
+
+            // Two half-steps
+            RealVector u = x.add(step(x, H / 2));
+            u = u.add(step(u, H / 2));
+
+            // One full step
+            RealVector v = x.add(step(x, H));
+
+            // Estimate error
+            RealVector diff = u.subtract(v);
+            double error = Math.sqrt(diff.dotProduct(diff)) / 15.0;
+
+            // Accept step if error is within tolerance
+            if (error < accuracy) {
+            t += H;
+            x = u;
+            }
+
+            // Adjust step size for next iteration
+            if (error >= eps) {
+            h = Math.min(
+                2 * H,
+                Math.min(0.9 * H * Math.pow(accuracy / error, 0.2), hMax)
+            );
+            } else {
+            h = Math.min(2 * H, hMax);
+            }
+            if (h < eps) {
+            h = 2 * eps;
+            }
         }
-        state.theta=x.getEntry(0);
-        state.phi=x.getEntry(1);
-        state.psi=x.getEntry(2);
-        state.pTheta=x.getEntry(3);
+
+        // Update state with integrated values
+        state.theta = x.getEntry(0);
+        state.phi = x.getEntry(1);
+        state.psi = x.getEntry(2);
+        state.pTheta = x.getEntry(3);
     }
 
     /**
      * Restores a set of default parameters and state.
      */
     public void resetInitialConditions() {
-        constants.J1 = 0.75;
-        constants.J3 = 5.10;
-        constants.M = 1.65;
-        constants.g = 9.81;
-        constants.l = 80;
+        // Set physical constants
+        constants.J1 = 0.75;      // Moment of inertia about axis 1
+        constants.J3 = 5.10;      // Moment of inertia about axis 3 (symmetry axis)
+        constants.M  = 1.65;      // Mass of the top
+        constants.g  = 9.81;      // Gravitational acceleration
+        constants.l  = 80;        // Distance from pivot to center of mass
 
-        accuracy = 1E-4;
-        itermax = 10000;
+        // Set integration parameters
+        accuracy = 1E-4;          // Desired accuracy for integrator
+        itermax  = 10000;         // Maximum number of integration steps
 
-        state.theta = 0.5*Math.PI;
-        state.phi = 0;
-        state.psi = 0;
+        // Set initial angles (in radians)
+        state.theta = 0.5 * Math.PI; // Initial inclination angle
+        state.phi   = 0;             // Initial azimuthal angle
+        state.psi   = 0;             // Initial spin angle
 
-        state.thetaDot = 0.0;
-        state.phiDot = 0.0;
-        state.psiDot = 56;
+        // Set initial angular velocities (in radians per second)
+        state.thetaDot = 0.0;        // Initial rate of change of theta
+        state.phiDot   = 0.0;        // Initial rate of change of phi
+        state.psiDot   = 56;         // Initial rate of change of psi (spin)
 
+        // Set integration time step for viewer
         dt = 0.001;
 
+        // Update dependent quantities
         updateAngularMomentum();
         updateEnergy();
     }
