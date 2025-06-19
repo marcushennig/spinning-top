@@ -4,6 +4,8 @@ import com.jme3.app.SimpleApplication;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
+import com.jme3.font.BitmapFont;
+import com.jme3.font.BitmapText;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
@@ -17,6 +19,7 @@ public class SpinningTopViewer extends SimpleApplication {
     private final SpinningTopSimulation simulation = new SpinningTopSimulation();
     private double time = 0.0;
     private Geometry topGeom;
+    private BitmapText hudText;
 
     public static void main(String[] args) {
         var app = new SpinningTopViewer();
@@ -51,6 +54,13 @@ public class SpinningTopViewer extends SimpleApplication {
 
         cam.setLocation(new Vector3f(0, 0, 100));
         cam.lookAt(Vector3f.ZERO, Vector3f.UNIT_Y);
+
+        BitmapFont font = assetManager.loadFont("Interface/Fonts/Default.fnt");
+        hudText = new BitmapText(font);
+        hudText.setSize(font.getCharSet().getRenderedSize());
+        hudText.setColor(ColorRGBA.Black);
+        hudText.setLocalTranslation(10f, cam.getHeight() - 10f, 0);
+        guiNode.attachChild(hudText);
     }
     /**
      * Resets the simulation to initial conditions.
@@ -64,11 +74,17 @@ public class SpinningTopViewer extends SimpleApplication {
         simulation.evolute(time, time + dt);
         time += dt;
 
+        simulation.updateEnergy();
+
         var s = simulation.getState();
         var rot = new Quaternion().fromAngleAxis((float) s.phi, Vector3f.UNIT_Y)
                 .mult(new Quaternion().fromAngleAxis((float) s.theta, Vector3f.UNIT_X))
                 .mult(new Quaternion().fromAngleAxis((float) s.psi, Vector3f.UNIT_Z));
         topGeom.setLocalRotation(rot);
+
+        hudText.setText(String.format(
+                "Energy: %.3f\nTheta: %.3f\nPhi: %.3f\nPsi: %.3f",
+                s.energy, s.theta, s.phi, s.psi));
     }
 
 }
