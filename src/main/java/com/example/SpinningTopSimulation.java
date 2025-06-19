@@ -95,9 +95,7 @@ public class SpinningTopSimulation {
      */
     public RealVector F(RealVector x){
         // Unpack state vector
-        double theta = x.getEntry(0);
-        double phi = x.getEntry(1);
-        double psi = x.getEntry(2);
+        double theta = x.getEntry(0);    
         double pTheta = x.getEntry(3);
 
         // Precompute trigonometric terms
@@ -188,21 +186,21 @@ public class SpinningTopSimulation {
 
             // Accept step if error is within tolerance
             if (error < accuracy) {
-            t += H;
-            x = u;
+                t += H;
+                x = u;
             }
 
             // Adjust step size for next iteration
             if (error >= eps) {
-            h = Math.min(
-                2 * H,
-                Math.min(0.9 * H * Math.pow(accuracy / error, 0.2), hMax)
-            );
+                h = Math.min(
+                    2 * H,
+                    Math.min(0.9 * H * Math.pow(accuracy / error, 0.2), hMax)
+                );
             } else {
-            h = Math.min(2 * H, hMax);
+                h = Math.min(2 * H, hMax);
             }
             if (h < eps) {
-            h = 2 * eps;
+                h = 2 * eps;
             }
         }
 
@@ -217,31 +215,25 @@ public class SpinningTopSimulation {
      * Restores a set of default parameters and state.
      */
     public void resetInitialConditions() {
-        // Set physical constants
-        constants.J1 = 0.75;      // Moment of inertia about axis 1
-        constants.J3 = 5.10;      // Moment of inertia about axis 3 (symmetry axis)
-        constants.M  = 1.65;      // Mass of the top
-        constants.g  = 9.81;      // Gravitational acceleration
-        constants.l  = 80;        // Distance from pivot to center of mass
+        constants.J1 = 0.75;
+        constants.J3 = 5.10;
+        constants.M = 1.65;
+        constants.g = 9.81;
+        constants.l = 80;
 
-        // Set integration parameters
-        accuracy = 1E-4;          // Desired accuracy for integrator
-        itermax  = 10000;         // Maximum number of integration steps
+        accuracy = 1E-4;
+        itermax = 10000;
 
-        // Set initial angles (in radians)
-        state.theta = 0.5 * Math.PI; // Initial inclination angle
-        state.phi   = 0;             // Initial azimuthal angle
-        state.psi   = 0;             // Initial spin angle
+        state.theta = 0.5*Math.PI;
+        state.phi = 0;
+        state.psi = 0;
 
-        // Set initial angular velocities (in radians per second)
-        state.thetaDot = 0.0;        // Initial rate of change of theta
-        state.phiDot   = 0.0;        // Initial rate of change of phi
-        state.psiDot   = 56;         // Initial rate of change of psi (spin)
+        state.thetaDot = 0.0;
+        state.phiDot = 0.0;
+        state.psiDot = 56;
 
-        // Set integration time step for viewer
         dt = 0.001;
 
-        // Update dependent quantities
         updateAngularMomentum();
         updateEnergy();
     }
