@@ -1,5 +1,8 @@
 package com.example;
 
+import org.apache.commons.math3.linear.ArrayRealVector;
+import org.apache.commons.math3.linear.RealVector;
+
 /**
  * Numerical model for the spinning top dynamics.
  * This class implements a simple symplectic integrator
@@ -57,20 +60,20 @@ public class SpinningTopSimulation {
      * @param x current state vector
      * @return time derivative of {@code x}
      */
-    public Vector4d F(Vector4d x){
-        double theta = x.get(1);
-        double p_theta = x.get(4);
+    public RealVector F(RealVector x){
+        double theta = x.getEntry(0);
+        double p_theta = x.getEntry(3);
         double s_theta = Math.sin(theta);
         double c_theta = Math.cos(theta);
         double A = c.state.p_phi - c.state.p_psi * c_theta;
 
-        return new Vector4d(
+        return new ArrayRealVector(new double[]{
             p_theta / c.constants.J1,
             A / (c.constants.J1*s_theta*s_theta),
             c.state.p_psi / c.constants.J3 - c_theta*A/(c.constants.J1*s_theta*s_theta),
             A * (-c.state.p_psi/(c.constants.J1*s_theta) + A * c_theta/(c.constants.J1*s_theta*s_theta*s_theta))
                     + c.constants.M*c.constants.g*c.constants.l*s_theta
-        );
+        });
     }
 
     /**
@@ -80,12 +83,12 @@ public class SpinningTopSimulation {
      * @param h integration step size
      * @return increment to be added to {@code x}
      */
-    public Vector4d step(Vector4d x, double h){
-        Vector4d k1 = F(x).scale(h);
-        Vector4d k2 = F(x.add(k1.scale(0.5))).scale(h);
-        Vector4d k3 = F(x.add(k2.scale(0.5))).scale(h);
-        Vector4d k4 = F(x.add(k3)).scale(h);
-        return k1.add(k2.scale(2)).add(k3.scale(2)).add(k4).div(6.0);
+    public RealVector step(RealVector x, double h){
+        RealVector k1 = F(x).mapMultiply(h);
+        RealVector k2 = F(x.add(k1.mapMultiply(0.5))).mapMultiply(h);
+        RealVector k3 = F(x.add(k2.mapMultiply(0.5))).mapMultiply(h);
+        RealVector k4 = F(x.add(k3)).mapMultiply(h);
+        return k1.add(k2.mapMultiply(2)).add(k3.mapMultiply(2)).add(k4).mapDivide(6.0);
     }
 
     /**
@@ -95,7 +98,7 @@ public class SpinningTopSimulation {
      * @param b end time
      */
     public void NDSolve(double a,double b){
-        Vector4d x = new Vector4d(c.state.theta,c.state.phi,c.state.psi,c.state.p_theta);
+        RealVector x = new ArrayRealVector(new double[]{c.state.theta,c.state.phi,c.state.psi,c.state.p_theta});
         double t=a;
         double h=(b-a)/10.0;
         double hmax=(b-a)/2.0;
@@ -104,20 +107,20 @@ public class SpinningTopSimulation {
         while(t<b && iter<c.itermax){
             iter++; h=Math.min(h,b-t);
             double H=h;
-            Vector4d u=x.add(step(x,H/2));
+            RealVector u=x.add(step(x,H/2));
             u=u.add(step(u,H/2));
-            Vector4d v=x.add(step(x,H));
-            Vector4d d=u.sub(v);
-            double error=Math.sqrt(d.dot(d))/15.0;
+            RealVector v=x.add(step(x,H));
+            RealVector d=u.subtract(v);
+            double error=Math.sqrt(d.dotProduct(d))/15.0;
             if(error < c.accuracy){ t=t+H; x=u; }
             if(error>=eps) h=Math.min(2*H, Math.min(0.9*H*Math.pow(c.accuracy/error,0.2),hmax));
             else h=Math.min(2*H, hmax);
             if(h<eps) h=2*eps;
         }
-        c.state.theta=x.get(1);
-        c.state.phi=x.get(2);
-        c.state.psi=x.get(3);
-        c.state.p_theta=x.get(4);
+        c.state.theta=x.getEntry(0);
+        c.state.phi=x.getEntry(1);
+        c.state.psi=x.getEntry(2);
+        c.state.p_theta=x.getEntry(3);
     }
 
     /**
