@@ -34,7 +34,8 @@ public class SpinningTopViewer extends SimpleApplication {
         
         settings.setTitle("Spinning Top Simulation"); // Set window title here
         settings.setSamples(16); // 4x MSAA (anti-aliasing)
-        
+        settings.setResolution(1200, 900); // Set window size: width x height
+
         app.setSettings(settings);
         app.start();
     }
@@ -47,6 +48,7 @@ public class SpinningTopViewer extends SimpleApplication {
 
         viewPort.setBackgroundColor(ColorRGBA.White);
         setDisplayStatView(false); // Hides FPS and stats overlay
+        flyCam.setEnabled(false); // Disables mouse camera movement
 
         var mat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
         mat.setBoolean("UseMaterialColors", true);
@@ -80,8 +82,9 @@ public class SpinningTopViewer extends SimpleApplication {
 
         // Red arrow indicating the current (x,y,z) position of the centre of mass
         var arrow = new Arrow(Vector3f.UNIT_Z.mult((float) simulation.getConstants().l));
-        arrow.setLineWidth(2);
+        arrow.setLineWidth(4);
         axisArrowGeom = new Geometry("comArrow", arrow);
+
         var redMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         redMat.setColor("Color", ColorRGBA.Red);
         axisArrowGeom.setMaterial(redMat);
@@ -129,7 +132,7 @@ public class SpinningTopViewer extends SimpleApplication {
 
     private void updateTrajectory(Vector3f pos) {
         trajectory.add(pos.clone());
-        if (trajectory.size() > 100) {
+        if (trajectory.size() > 1000) {
             trajectory.remove(0);
         }
     }
