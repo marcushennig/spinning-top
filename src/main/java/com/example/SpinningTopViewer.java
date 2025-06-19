@@ -45,11 +45,17 @@ public class SpinningTopViewer extends SimpleApplication {
         cam.setLocation(new Vector3f(0, 0, 100));
         cam.lookAt(Vector3f.ZERO, Vector3f.UNIT_Y);
     }
-
+    /**
+     * Resets the simulation to initial conditions.
+     * This method is called when the application starts.
+     * @param tpf time per frame, not used in this method
+     */
     @Override
     public void simpleUpdate(float tpf) {
-        simulation.evolute(time, time + tpf);
-        time += tpf;
+        
+        double dt = simulation.getDt(); // Integration time step
+        simulation.evolute(time, time + dt);
+        time += dt;
 
         SpinningTopState s = simulation.getState();
         Quaternion rot = new Quaternion().fromAngleAxis((float) s.phi, Vector3f.UNIT_Y)
@@ -59,7 +65,16 @@ public class SpinningTopViewer extends SimpleApplication {
     }
 
     /**
-     * Build a Dupin cyclide mesh similar to the old OpenGL renderer.
+     * Creates a Dupin cyclide mesh.
+     * The Dupin cyclide is a surface of revolution defined by four parameters.
+     * This method generates a mesh by sampling points on the surface.
+     * @param a the first radius parameter
+     * @param b the second radius parameter
+     * @param c the third radius parameter
+     * @param d the fourth radius parameter
+     * @param numU  the number of segments in the u direction
+     * @param numV  
+     * @return a Mesh representing the Dupin cyclide  
      */
     private Mesh createDupinCyclide(float a, float b, float c, float d, int numU, int numV) {
         int vertCount = (numU + 1) * (numV + 1);
