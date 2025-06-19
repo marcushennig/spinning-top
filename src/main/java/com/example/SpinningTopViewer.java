@@ -51,7 +51,7 @@ public class SpinningTopViewer extends SimpleApplication {
 
         viewPort.setBackgroundColor(ColorRGBA.White);
         setDisplayStatView(false); // Hides FPS and stats overlay
-        flyCam.setEnabled(true); // Disables mouse camera movement
+        flyCam.setEnabled(false); // Disables mouse camera movement
 
         var solidMat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
         solidMat.setBoolean("UseMaterialColors", true);
